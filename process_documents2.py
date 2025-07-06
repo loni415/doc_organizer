@@ -6,6 +6,7 @@ import requests
 import ollama
 import docx
 from datetime import datetime
+import sys
 
 # --- CONFIGURATION ---
 GDRIVE_INPUT_CSV = 'master_index.csv'
@@ -163,3 +164,19 @@ def process_local_folder(folder_path, output_csv):
     # Save results
     df.to_csv(output_csv, index=False)
     print(f"\n[INFO] Analysis complete. Results saved to {output_csv}")
+
+# --- MAIN EXECUTION ---
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python process_documents2.py <folder_path> [output_csv]")
+        print("Example: python process_documents2.py /Users/lukasfiller/Documents results.csv")
+        sys.exit(1)
+    
+    folder_path = sys.argv[1]
+    output_csv = sys.argv[2] if len(sys.argv) > 2 else "analysis_results.csv"
+    
+    if not os.path.exists(folder_path):
+        print(f"Error: Folder '{folder_path}' does not exist.")
+        sys.exit(1)
+    
+    process_local_folder(folder_path, output_csv)
