@@ -79,12 +79,14 @@ def get_language(text_content):
     system_prompt = "Identify the primary language of the following text. Respond with ONLY the name of the language (e.g., 'English', 'Mandarin Chinese')."
     return ollama_chat_request(system_prompt, text_content[:2000])
 
-def get_filename(tags):
+def get_filename(tags, original_filename=""):
     if not tags: return ""
-    system_prompt = "You are a file naming expert. Based on the following tags, create a standardized filename. The format is YYYY-MM-DD_[Primary-Tag]_[Keywords].ext. Use the most important tag first. Respond with ONLY the filename."
+    # Preserve original file extension
+    original_ext = os.path.splitext(original_filename)[1] if original_filename else ".ext"
+    system_prompt = f"You are a file naming expert. Based on the following tags, create a standardized filename. The format is YYYY-MM-DD_[Primary-Tag]_[Keywords]{original_ext}. Use the most important tag first. Respond with ONLY the filename."
     user_prompt = f"Tags: {', '.join(tags)}"
     filename = ollama_chat_request(system_prompt, user_prompt)
-    return filename or f"{datetime.now().strftime('%Y-%m-%d')}_{tags[0]}.ext"
+    return filename or f"{datetime.now().strftime('%Y-%m-%d')}_{tags[0]}{original_ext}"
 
 
 # --- WORKFLOW 2: LOCAL FOLDER (REFACTORED) ---
@@ -147,7 +149,7 @@ def process_local_folder(folder_path, output_csv):
                 df.at[index, 'Language'] = language
             
             print("  [4/4] Generating standardized filename...")
-            new_filename = get_filename(tags) if tags else ""
+            new_filename = get_filename(tags, file_name) if tags else ""
             if new_filename:
                 df.at[index, 'New Standardized Name'] = new_filename
             
