@@ -12,7 +12,7 @@ import sys
 GDRIVE_INPUT_CSV = 'master_index.csv'
 GDRIVE_OUTPUT_CSV = 'analyzed_index.csv'
 APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwY3qtUcRp0YZIq6AABteWVMCOcfsBBet93p1Wvy81WFhK2RitvFdpxwXPmRHCsfYuQ/exec'
-MODEL_NAME = "phi4-reasoning:14b-plus-fp16" # Recommend starting with a smaller, faster model for this multi-step process
+MODEL_NAME = "llama3.1:8b-instruct-fp16" # Recommend starting with a smaller, faster model for this multi-step process
 
 # --- HELPER FUNCTIONS ---
 

@@ -26,7 +26,7 @@ import docx
 import ollama
 
 # --- CONFIGURATION ---
-MODEL_NAME = "phi4-reasoning:14b-plus-fp16"
+MODEL_NAME = "llama3.1:8b-instruct-fp16"
 
 # --- CORE UTILITY FUNCTIONS ---
 
