@@ -106,10 +106,58 @@ def process_local_folder(folder_path, output_csv):
         print(f"\nProcessing ({index + 1}/{len(df)}): {file_name}")
 
         text_content = ""
-        # Text extraction block... (unchanged)
+        # Text extraction block
         if file_name.lower().endswith('.pdf'):
             text_content = extract_text_from_pdf(file_path)
         elif file_name.lower().endswith('.docx'):
             text_content = extract_text_from_docx(file_path)
         elif file_name.lower().endswith(('.txt', '.md')):
-            text_content = extract_text_from_txt(
+            text_content = extract_text_from_txt(file_path)
+        else:
+            print(f"  [SKIP] Unsupported file type: {file_name}")
+            df.at[index, 'Processing Status'] = 'Skipped - Unsupported file type'
+            continue
+
+        # Check if text extraction was successful
+        if text_content.startswith("Error"):
+            print(f"  [ERROR] {text_content}")
+            df.at[index, 'Processing Status'] = f'Error: {text_content}'
+            continue
+
+        if not text_content.strip():
+            print(f"  [SKIP] No text content found in {file_name}")
+            df.at[index, 'Processing Status'] = 'Skipped - No text content'
+            continue
+
+        # Multi-step analysis
+        try:
+            print("  [1/4] Generating summary...")
+            summary = get_summary(text_content)
+            if summary:
+                df.at[index, 'Generated Summary'] = summary
+            
+            print("  [2/4] Extracting tags...")
+            tags = get_tags(summary) if summary else []
+            if tags:
+                df.at[index, 'Metadata Tags'] = ', '.join(tags)
+            
+            print("  [3/4] Detecting language...")
+            language = get_language(text_content)
+            if language:
+                df.at[index, 'Language'] = language
+            
+            print("  [4/4] Generating standardized filename...")
+            new_filename = get_filename(tags) if tags else ""
+            if new_filename:
+                df.at[index, 'New Standardized Name'] = new_filename
+            
+            df.at[index, 'Processing Status'] = 'Completed'
+            print(f"  [SUCCESS] Analysis complete for {file_name}")
+            
+        except Exception as e:
+            print(f"  [ERROR] Analysis failed for {file_name}: {e}")
+            df.at[index, 'Processing Status'] = f'Error: {e}'
+
+    # Save results
+    df.to_csv(output_csv, index=False)
+    print(f"\n[INFO] Analysis complete. Results saved to {output_csv}")
