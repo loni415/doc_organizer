@@ -17,6 +17,7 @@ import sys
 import json
 import csv
 import argparse
+import shutil  # Add this import
 from datetime import datetime
 from pathlib import Path
 
@@ -263,7 +264,7 @@ def create_folder_structure(csv_file="analysis_results.csv", structure_file="fol
             if row['Processing Status'] != 'Analyzed':
                 continue
                 
-            tags = [t.strip() for t in str(row['Metadata Tags']).split(',') if t.strip()]
+            tags = [t.strip() for t in str(row['Metadata Tags']).split(',') if t.strip() and str(row['Metadata Tags']) != 'nan']
             if tags:
                 primary_tag = tags[0]  # Use first tag as primary folder
                 if primary_tag not in tags_to_files:
@@ -300,7 +301,7 @@ def generate_execution_plan(csv_file="analysis_results.csv", plan_file="executio
             if row['Processing Status'] != 'Analyzed':
                 continue
                 
-            tags = [t.strip() for t in str(row['Metadata Tags']).split(',') if t.strip()]
+            tags = [t.strip() for t in str(row['Metadata Tags']).split(',') if t.strip() and str(row['Metadata Tags']) != 'nan']
             if not tags:
                 continue
             
@@ -402,14 +403,21 @@ def execute_reorganization(plan_file="execution_plan.md", dry_run=False):
                     src = parts[1]
                     dest = parts[3]
                     
+                    # Validate source file exists
+                    if not os.path.exists(src):
+                        print(f"Warning: Source file not found: {src}")
+                        continue
+                    
                     # Ensure destination directory exists
                     dest_dir = os.path.dirname(dest)
                     if dest_dir:
                         os.makedirs(dest_dir, exist_ok=True)
                     
                     # Move file
-                    os.rename(src, dest)
-                    
+                    shutil.move(src, dest)
+                else:
+                    print(f"Warning: Could not parse mv command: {cmd}")
+        
         print("Reorganization completed successfully!")
         return True
         
