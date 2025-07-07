@@ -234,7 +234,7 @@ def analyze_documents(folder_path, output_csv="analysis_results.csv", include_me
                     df.at[index, key] = metadata.get(key.lower(), '')
             
             print("  [4/4] Generating standardized filename...")
-            new_filename = generate_filename(tags, metadata, file_name, include_metadata)
+            new_filename = generate_filename(tags, metadata, str(file_name), include_metadata)
             if new_filename:
                 df.at[index, 'New Standardized Name'] = new_filename
             
@@ -268,7 +268,7 @@ def create_folder_structure(csv_file="analysis_results.csv", structure_file="fol
                 primary_tag = tags[0]  # Use first tag as primary folder
                 if primary_tag not in tags_to_files:
                     tags_to_files[primary_tag] = []
-                tags_to_files[primary_tag].append(row['File Path'])
+                tags_to_files[primary_tag].append(str(row['File Path']))  # Convert to string
         
         # Save structure
         with open(structure_file, 'w', encoding='utf-8') as f:
@@ -305,8 +305,8 @@ def generate_execution_plan(csv_file="analysis_results.csv", plan_file="executio
                 continue
             
             folder = tags[0]  # Primary tag becomes folder name
-            new_name = row['New Standardized Name']
-            old_path = row['File Path']
+            new_name = str(row['New Standardized Name'])  # Convert to string
+            old_path = str(row['File Path'])  # Convert to string
             
             # Sanitize folder name for filesystem
             folder = "".join(c for c in folder if c.isalnum() or c in (' ', '-', '_')).strip()
